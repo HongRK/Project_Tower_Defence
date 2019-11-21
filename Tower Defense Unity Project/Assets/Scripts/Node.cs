@@ -1,29 +1,28 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Node : MonoBehaviour {
-
-	public Color hoverColor;
-	public Color notEnoughMoneyColor;
+public class Node : MonoBehaviour
+{
     public Vector3 positionOffset;
 
-	[HideInInspector]
-	public GameObject turret;
+    public TurretBlueprint standardTurret;
+    public TurretBlueprint missileLauncher;
+    public TurretBlueprint laserBeamer;
+
+
+    [HideInInspector]
+    public GameObject turret;
 	[HideInInspector]
 	public TurretBlueprint turretBlueprint;
 	[HideInInspector]
 	public bool isUpgraded = false;
 
-	private Renderer rend;
-	private Color startColor;
-
 	BuildManager buildManager;
 
 	void Start ()
 	{
-		rend = GetComponent<Renderer>();
-		startColor = rend.material.color;
-
 		buildManager = BuildManager.instance;
     }
 
@@ -43,26 +42,31 @@ public class Node : MonoBehaviour {
 			return;
 		}
 
-		if (!buildManager.CanBuild)
-			return;
-
-		BuildTurret(buildManager.GetTurretToBuild());
+            buildManager.SelectBuild(this);
+            return;
 	}
 
-	void BuildTurret (TurretBlueprint blueprint)
+	public void BuildTurret ()
 	{
-		if (PlayerStats.Money < blueprint.cost)
+		if (PlayerStats.Money < standardTurret.cost)
 		{
 			Debug.Log("Not enough money to build that!");
 			return;
 		}
 
-		PlayerStats.Money -= blueprint.cost;
+        GameObject []Tur = new GameObject[3];
 
-		GameObject _turret = (GameObject)Instantiate(blueprint.prefab, GetBuildPosition(), Quaternion.identity);
+        Tur[0] = standardTurret.prefab;
+        Tur[1] = missileLauncher.prefab;
+        Tur[2] = laserBeamer.prefab;
+         
+
+		PlayerStats.Money -= standardTurret.cost;
+
+		GameObject _turret = (GameObject)Instantiate(Tur[Random.Range(0,3)], GetBuildPosition(), Quaternion.identity);
 		turret = _turret;
 
-		turretBlueprint = blueprint;
+		turretBlueprint = standardTurret;
 
 		GameObject effect = (GameObject)Instantiate(buildManager.buildEffect, GetBuildPosition(), Quaternion.identity);
 		Destroy(effect, 5f);
@@ -80,8 +84,15 @@ public class Node : MonoBehaviour {
 
 		PlayerStats.Money -= turretBlueprint.upgradeCost;
 
-		//Get rid of the old turret
-		Destroy(turret);
+       /*
+        GameObject[] Turup = new GameObject[3];
+
+        Turup[0] = Resources.Load<GameObject>("Resources/LaserBeamer_Upgraded") as GameObject;
+        Turup[1] = Resources.Load<GameObject>("Resources/MissileLauncher_Upgraded") as GameObject;
+        Turup[2] = Resources.Load<GameObject>("Resources/StandardTurret_Upgraded") as GameObject;
+        */
+        //Get rid of the old turret
+        Destroy(turret);
 
 		//Build a new one
 		GameObject _turret = (GameObject)Instantiate(turretBlueprint.upgradedPrefab, GetBuildPosition(), Quaternion.identity);
@@ -113,20 +124,5 @@ public class Node : MonoBehaviour {
 
 		if (!buildManager.CanBuild)
 			return;
-
-		if (buildManager.HasMoney)
-		{
-			rend.material.color = hoverColor;
-		} else
-		{
-			rend.material.color = notEnoughMoneyColor;
-		}
-
 	}
-
-	void OnMouseExit ()
-	{
-		rend.material.color = startColor;
-    }
-
 }

@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BuildManager : MonoBehaviour {
@@ -21,6 +23,7 @@ public class BuildManager : MonoBehaviour {
 	private Node selectedNode;
 
 	public NodeUI nodeUI;
+    public BuildUI buildUI;
 
 	public bool CanBuild { get { return turretToBuild != null; } }
 	public bool HasMoney { get { return PlayerStats.Money >= turretToBuild.cost; } }
@@ -39,16 +42,28 @@ public class BuildManager : MonoBehaviour {
 		nodeUI.SetTarget(node);
 	}
 
+    public void SelectBuild(Node node)
+    {
+        buildUI.SetTarget(node);
+    }
+
 	public void DeselectNode()
 	{
 		selectedNode = null;
 		nodeUI.Hide();
 	}
 
+    public void DeselectBuildUI()
+    {
+        selectedNode = null;
+        buildUI.Hide();
+    }
+
 	public void SelectTurretToBuild (TurretBlueprint turret)
 	{
 		turretToBuild = turret;
 		DeselectNode();
+        DeselectBuildUI();
 	}
 
 	public TurretBlueprint GetTurretToBuild ()

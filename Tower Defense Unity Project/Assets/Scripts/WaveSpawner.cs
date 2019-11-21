@@ -10,8 +10,8 @@ public class WaveSpawner : MonoBehaviour {
 
 	public Transform spawnPoint;
 
-	public float timeBetweenWaves = 5f;
-	private float countdown = 2f;
+	public float timeBetweenWaves = 10f;
+	private float countdown = 10f;
 
 	public Text waveCountdownText;
 
@@ -21,11 +21,6 @@ public class WaveSpawner : MonoBehaviour {
 
 	void Update ()
 	{
-		if (EnemiesAlive > 0)
-		{
-			return;
-		}
-
 		if (waveIndex == waves.Length)
 		{
 			gameManager.WinLevel();
